@@ -63,7 +63,7 @@ class Conn extends PDO {
             }
         }
 
-        return $this->fetchTableDataF($table, $where, $orderby, $limit, $fields);
+        return $this->fetchTableDataF($table, $where, $orderby, $limit, 'or', $fields);
     }
 
     public function fetchTableDataF($table, $filter = array(), $orderby = null, $limit = false, $andOr = "AND", $fields = "*") {
