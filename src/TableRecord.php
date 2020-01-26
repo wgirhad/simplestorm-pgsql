@@ -2,6 +2,7 @@
 
 namespace wgirhad\SimplestORM\Postgres;
 use Throwable;
+use Iterator;
 
 class TableRecord implements Iterator {
     protected $data;
