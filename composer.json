@@ -1,0 +1,24 @@
+{
+    "name": "wgirhad/simplestorm-pgsql",
+    "type": "library",
+    "description": "SQL stuff - for PostgreSQL",
+    "keywords": ["pgsql","orm"],
+    "license": ["MIT"],
+    "authors": [
+        {
+            "name": "Willian Girhad",
+            "email": "wgirhad@outlook.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "ext-mbstring": "*",
+        "ext-pgsql": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "wgirhad\\SimplestORM\\Postgres": "src/"
+        }
+    }
+}
