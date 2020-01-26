@@ -186,6 +186,7 @@ class Conn extends PDO {
         $result = array();
 
         $stmt = $this->prepare($sql);
+        $param = $this->sanitizeParam($param);
 
         if (!$stmt->execute($param)) return $result;
 
@@ -196,15 +197,30 @@ class Conn extends PDO {
         return $result;
     }
 
+    public function executeRaw($sql) {
+        if ($this->exec($sql) === false) {
+            $err = $this->errorInfo();
+            throw new Exception($err[2], (int) $err[0]);
+        }
+    }
+
+    public function insert($table, $data) {
+        $builder = new QueryBuilder;
+        $result = $builder->insert($table, [$data]);
+        extract($result);
+        return $this->runInsert($query, $param);
+    }
+
+    public function insertMulti($table, $dataset) {
+        $builder = new QueryBuilder;
+        $result = $builder->insert($table, $dataset);
+        extract($result);
+        $this->executeSQL($query, $param);
+    }
+
     public function executeSQL($sql, $param = array()) {
         $stmt = $this->prepare($sql);
-
-        $param = array_map(function($a) {
-            if (is_bool($a)) {
-                return $a ? 1 : 0;
-            }
-            return $a;
-        }, $param);
+        $param = $this->sanitizeParam($param);
 
         if (!$stmt->execute($param)) {
             $err = $stmt->errorInfo();
@@ -220,6 +236,7 @@ class Conn extends PDO {
 
         $this->beginTransaction();
         $stmt = $this->prepare($sql);
+        $param = $this->sanitizeParam($param);
 
         if ($stmt->execute($param)) {
             $result = $this->lastInsertId();
@@ -231,5 +248,14 @@ class Conn extends PDO {
         }
 
         return $result;
+    }
+
+    protected function sanitizeParam($param) {
+        return array_map(function($a) {
+            if (is_bool($a)) {
+                return $a ? 1 : 0;
+            }
+            return $a;
+        }, $param);
     }
 }
