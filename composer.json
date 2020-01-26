@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "wgirhad\\SimplestORM\\Postgres": "src/"
+            "wgirhad\\SimplestORM\\Postgres\\": "src/"
         }
     }
 }
