@@ -150,11 +150,11 @@ class Conn extends PDO {
             data_type
         from information_schema.columns
         where
-            table_name = ?
+            table_name = '$table'
         and table_schema = 'public'
         ";
 
-        $array = $this->getSQLArray($sql, [$table]);
+        $array = $this->getSQLArray($sql);
 
         $result = array();
 
@@ -173,11 +173,11 @@ class Conn extends PDO {
         from information_schema.table_constraints a
         join information_schema.constraint_column_usage b using (constraint_schema, constraint_name)
         where a.table_schema = 'public'
-        and a.table_name = ?
+        and a.table_name = '$table'
         and a.constraint_type = 'PRIMARY KEY'
         ";
 
-        $array = $this->getSQLArray($sql, [$table]);
+        $array = $this->getSQLArray($sql);
 
         return $array[0]["column_name"];
     }
