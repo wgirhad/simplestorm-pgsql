@@ -1,6 +1,7 @@
 <?php
 
 namespace wgirhad\SimplestORM\Postgres;
+use Spatie\Once\Cache;
 use Exception;
 use PDO;
 
@@ -144,42 +145,53 @@ class Conn extends PDO {
     }
 
     public function fetchTableMeta($table) {
-        $sql =
-        "select
-            lower(column_name) as column_name,
-            data_type
-        from information_schema.columns
-        where
-            table_name = '$table'
-        and table_schema = 'public'
-        ";
+        return once(function () use ($table) {
+            $sql =
+            "select
+                lower(column_name) as column_name,
+                data_type
+            from information_schema.columns
+            where
+                table_name = '$table'
+            and table_schema = 'public'
+            ";
 
-        $array = $this->getSQLArray($sql);
+            $array = $this->getSQLArray($sql);
 
-        $result = array();
+            $result = array();
 
-        foreach ($array as $value) {
-            $result[$value['column_name']] = $value['data_type'];
-        }
+            foreach ($array as $value) {
+                $result[$value['column_name']] = $value['data_type'];
+            }
 
-        return $result;
+            return $result;
+        });
     }
 
     public function fetchTablePK($table) {
-        $table = mb_strtolower($table);
-        $sql =
-        "select distinct
-            lower(b.column_name) as column_name
-        from information_schema.table_constraints a
-        join information_schema.constraint_column_usage b using (constraint_schema, constraint_name)
-        where a.table_schema = 'public'
-        and a.table_name = '$table'
-        and a.constraint_type = 'PRIMARY KEY'
-        ";
+        return once(function () use ($table) {
+            $table = mb_strtolower($table);
+            $sql =
+            "select distinct
+                lower(b.column_name) as column_name
+            from information_schema.table_constraints a
+            join information_schema.constraint_column_usage b using (constraint_schema, constraint_name)
+            where a.table_schema = 'public'
+            and a.table_name = '$table'
+            and a.constraint_type = 'PRIMARY KEY'
+            ";
 
-        $array = $this->getSQLArray($sql);
+            $array = $this->getSQLArray($sql);
 
-        return $array[0]["column_name"];
+            if (empty($array)) return null;
+
+            return $array[0]["column_name"];
+        });
+    }
+
+    public function tableExists($table, $force = false) {
+        if ($force) Cache::flush();
+        return !empty($this->fetchTableMeta($table));
     }
 
     public function getSQLArray($sql, $param = array()) {

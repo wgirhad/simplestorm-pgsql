@@ -1,6 +1,7 @@
 <?php
 
 namespace wgirhad\SimplestORM\Postgres;
+use Exception;
 use Throwable;
 use Iterator;
 
@@ -13,6 +14,11 @@ class TableRecord implements Iterator {
 
     function __construct($table, $data = null) {
         $this->conn = Conn::getInstance();
+
+        if (!$this->conn->tableExists($table)) {
+            throw new Exception("Table \"$table\" does not exist");
+        }
+
         $this->table = $table;
         $this->columns    = $this->conn->fetchTableMeta($table);
         $this->primaryKey = $this->conn->fetchTablePK($table);
