@@ -4,71 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fed4d7df06f3b8105669afd5efce5548",
-    "packages": [
-        {
-            "name": "spatie/once",
-            "version": "2.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/spatie/once.git",
-                "reference": "e6c13ae474a7d4b30975ef6a502a593874ac12d2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/spatie/once/zipball/e6c13ae474a7d4b30975ef6a502a593874ac12d2",
-                "reference": "e6c13ae474a7d4b30975ef6a502a593874ac12d2",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2|^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
-                "psr-4": {
-                    "Spatie\\Once\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Freek Van der Herten",
-                    "email": "freek@spatie.be",
-                    "homepage": "https://spatie.be",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A magic memoization function",
-            "homepage": "https://github.com/spatie/once",
-            "keywords": [
-                "cache",
-                "callable",
-                "memozation",
-                "once",
-                "spatie"
-            ],
-            "support": {
-                "issues": "https://github.com/spatie/once/issues",
-                "source": "https://github.com/spatie/once/tree/2.2.1"
-            },
-            "funding": [
-                {
-                    "url": "https://spatie.be/open-source/support-us",
-                    "type": "custom"
-                }
-            ],
-            "time": "2020-10-29T18:22:10+00:00"
-        }
-    ],
+    "content-hash": "5d53068f0d53af1840479b71dbefc38c",
+    "packages": [],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
@@ -78,7 +15,7 @@
     "platform": {
         "php": "^7.0 || ^8.0",
         "ext-mbstring": "*",
-        "ext-pgsql": "*"
+        "ext-pdo_pgsql": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

@@ -14,12 +14,11 @@
     "require": {
         "php": "^7.0 || ^8.0",
         "ext-mbstring": "*",
-        "ext-pgsql": "*",
-        "spatie/once": "^2.2"
+        "ext-pdo_pgsql": "*"
     },
     "autoload": {
         "psr-4": {
-            "wgirhad\\SimplestORM\\Postgres\\": "src/"
+            "Wgirhad\\SimplestOrm\\Postgres\\": "src/"
         }
     }
 }

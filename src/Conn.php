@@ -1,6 +1,6 @@
 <?php
 
-namespace wgirhad\SimplestORM\Postgres;
+namespace Wgirhad\SimplestOrm\Postgres;
 use Spatie\Once\Cache;
 use Exception;
 use PDO;
@@ -8,6 +8,7 @@ use PDO;
 class Conn extends PDO {
     protected static $dbs = [];
     private static $instances = [];
+    private static $cache = [];
     protected $dbName;
 
     function __construct($conf) {
@@ -144,8 +145,18 @@ class Conn extends PDO {
         return $result;
     }
 
-    public function fetchTableMeta($table) {
-        return once(function () use ($table) {
+    private function once(string $callee, string $key, callable $action): mixed
+    {
+        if (!isset(self::$cache[$callee][$key])) {
+            self::$cache[$callee][$key] = $action();
+        }
+
+        return self::$cache[$callee][$key];
+    }
+
+    public function fetchTableMeta($table): array
+    {
+        return $this->once('fetchTableMeta', $table, function() use ($table) {
             $sql =
             "select
                 lower(column_name) as column_name,
@@ -156,20 +167,20 @@ class Conn extends PDO {
             and table_schema = 'public'
             ";
 
-            $array = $this->getSQLArray($sql);
+            $columns = $this->getSQLArray($sql);
 
-            $result = array();
-
-            foreach ($array as $value) {
-                $result[$value['column_name']] = $value['data_type'];
-            }
+            $result = array_combine(
+                array_column($columns, 'column_name'),
+                array_column($columns, 'data_type'),
+            );
 
             return $result;
         });
     }
 
-    public function fetchTablePK($table) {
-        return once(function () use ($table) {
+    public function fetchTablePK(string $table): ?string
+    {
+        return $this->once('fetchTablePK', $table, function () use ($table) {
             $table = mb_strtolower($table);
             $sql =
             "select distinct
@@ -190,7 +201,10 @@ class Conn extends PDO {
     }
 
     public function tableExists($table, $force = false) {
-        if ($force) Cache::flush();
+        if ($force) {
+            self::$cache = [];
+        }
+
         return !empty($this->fetchTableMeta($table));
     }
 

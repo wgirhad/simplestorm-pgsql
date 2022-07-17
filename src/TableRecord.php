@@ -1,6 +1,6 @@
 <?php
 
-namespace wgirhad\SimplestORM\Postgres;
+namespace Wgirhad\SimplestOrm\Postgres;
 use Exception;
 use Throwable;
 use Iterator;
