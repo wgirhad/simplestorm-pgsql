@@ -1,7 +1,6 @@
 <?php
 
 namespace Wgirhad\SimplestOrm\Postgres;
-use Spatie\Once\Cache;
 use Exception;
 use PDO;
 
