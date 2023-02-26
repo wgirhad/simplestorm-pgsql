@@ -1,10 +1,13 @@
 <?php
 
 namespace Wgirhad\SimplestOrm\Postgres;
+
 use Exception;
 
-class QueryBuilder {
-    public function insert($table, $dataset) {
+class QueryBuilder
+{
+    public function insert($table, $dataset)
+    {
         if (empty($dataset)) {
             throw new Exception("Empty Insert");
         }

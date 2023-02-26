@@ -1,19 +1,24 @@
 <?php
 
 namespace Wgirhad\SimplestOrm\Postgres;
+
 use Exception;
 use PDO;
 
-class Conn extends PDO {
+class Conn extends PDO
+{
     protected static $dbs = [];
     private static $instances = [];
     private static $cache = [];
     protected $dbName;
 
-    function __construct($conf) {
+    public function __construct($conf)
+    {
         $depth = 0;
         while (is_string($conf)) {
-            if (++$depth > 10) throw new Exception("Configuration Error");
+            if (++$depth > 10) {
+                throw new Exception("Configuration Error");
+            }
             $conf = self::$dbs[$conf];
         }
         $dsn = self::template($conf['DSN'], $conf);
@@ -21,11 +26,13 @@ class Conn extends PDO {
         $this->dbName = $conf["db"];
     }
 
-    public static function loadConfigs($dbs) {
+    public static function loadConfigs($dbs)
+    {
         self::$dbs = $dbs;
     }
 
-    public static function getInstance($db = 'default') {
+    public static function getInstance($db = 'default')
+    {
         if (!isset(self::$instances[$db])) {
             self::$instances[$db] = new self($db);
         }
@@ -33,25 +40,37 @@ class Conn extends PDO {
         return self::$instances[$db];
     }
 
-    protected static function template($str, $arr) {
+    protected static function template($str, $arr)
+    {
         foreach ($arr as $key => $value) {
-            if (is_array($value)) continue;
+            if (is_array($value)) {
+                continue;
+            }
             $str = str_replace('{{' . $key . '}}', $value, $str);
         }
 
         return $str;
     }
 
-    public function fetchTableData($table, $field = null, $values = null, $operator = "=", $orderby = null, $invert = false, $limit = false, $fields = "*") {
-        $where = array();
+    public function fetchTableData(
+        $table,
+        $field = null,
+        $values = null,
+        $operator = "=",
+        $orderby = null,
+        $invert = false,
+        $limit = false,
+        $fields = "*",
+    ) {
+        $where = [];
 
         if (!is_array($values)) {
-            $values = array($values);
+            $values = [$values];
         }
 
         foreach ($values as $i => $value) {
             if ($value !== null && $field !== '') {
-                $filter = array();
+                $filter = [];
 
                 if ($invert) {
                     $filter['query'] = "? $operator $field";
@@ -67,9 +86,16 @@ class Conn extends PDO {
         return $this->fetchTableDataF($table, $where, $orderby, $limit, 'or', $fields);
     }
 
-    public function fetchTableDataF($table, $filter = array(), $orderby = null, $limit = false, $andOr = "AND", $fields = "*") {
-        $param = array();
-        $where = array();
+    public function fetchTableDataF(
+        $table,
+        $filter = [],
+        $orderby = null,
+        $limit = false,
+        $andOr = "AND",
+        $fields = "*",
+    ) {
+        $param = [];
+        $where = [];
 
         if ($orderby === null) {
             $orderby = [$this->fetchTablePK($table)];
@@ -81,7 +107,9 @@ class Conn extends PDO {
         }
 
         $where = implode(" $andOr ", $where);
-        if (strlen(trim($where)) > 0) $where = "where $where";
+        if (strlen(trim($where)) > 0) {
+            $where = "where $where";
+        }
 
 
         if ($limit !== false) {
@@ -103,9 +131,10 @@ class Conn extends PDO {
         return $this->getSQLArray($sql, $param);
     }
 
-    public function fetchSimpleData($table, $options = array()) {
-        $list = array();
-        $list["filter"] = array();
+    public function fetchSimpleData($table, $options = [])
+    {
+        $list = [];
+        $list["filter"] = [];
         $list["orderby"] = null;
         $list["limit"] = false;
         $list["andOr"] = "and";
@@ -117,13 +146,21 @@ class Conn extends PDO {
             }
         }
 
-        $result = $this->fetchTableDataF($table, $list["filter"], $list["orderby"], $list["limit"], $list["andOr"], $list["fields"]);
+        $result = $this->fetchTableDataF(
+            $table,
+            $list["filter"],
+            $list["orderby"],
+            $list["limit"],
+            $list["andOr"],
+            $list["fields"]
+        );
 
         return $result;
     }
 
-    public function assembleFilter($values, $operator = "=") {
-        $result = array();
+    public function assembleFilter($values, $operator = "=")
+    {
+        $result = [];
 
         $isContaining = ($operator == "containing");
 
@@ -135,10 +172,10 @@ class Conn extends PDO {
                 $op = $operator;
             }
 
-            array_push($result, array(
+            array_push($result, [
                 "query" => "$key $op ?",
                 "param" => $value
-            ));
+            ]);
         }
 
         return $result;
@@ -155,7 +192,7 @@ class Conn extends PDO {
 
     public function fetchTableMeta($table): array
     {
-        return $this->once('fetchTableMeta', $table, function() use ($table) {
+        return $this->once('fetchTableMeta', $table, function () use ($table) {
             $sql =
             "select
                 lower(column_name) as column_name,
@@ -193,13 +230,16 @@ class Conn extends PDO {
 
             $array = $this->getSQLArray($sql);
 
-            if (empty($array)) return null;
+            if (empty($array)) {
+                return null;
+            }
 
             return $array[0]["column_name"];
         });
     }
 
-    public function tableExists($table, $force = false) {
+    public function tableExists($table, $force = false)
+    {
         if ($force) {
             self::$cache = [];
         }
@@ -207,13 +247,16 @@ class Conn extends PDO {
         return !empty($this->fetchTableMeta($table));
     }
 
-    public function getSQLArray($sql, $param = array()) {
-        $result = array();
+    public function getSQLArray($sql, $param = [])
+    {
+        $result = [];
 
         $stmt = $this->prepare($sql);
         $param = $this->sanitizeParam($param);
 
-        if (!$stmt->execute($param)) return $result;
+        if (!$stmt->execute($param)) {
+            return $result;
+        }
 
         while ($row = $stmt->fetch(parent::FETCH_ASSOC)) {
             array_push($result, $row);
@@ -222,28 +265,32 @@ class Conn extends PDO {
         return $result;
     }
 
-    public function executeRaw($sql) {
+    public function executeRaw($sql)
+    {
         if ($this->exec($sql) === false) {
             $err = $this->errorInfo();
             throw new Exception($err[2], (int) $err[0]);
         }
     }
 
-    public function insert($table, $data) {
-        $builder = new QueryBuilder;
+    public function insert($table, $data)
+    {
+        $builder = new QueryBuilder();
         $result = $builder->insert($table, [$data]);
         extract($result);
         return $this->runInsert($query, $param);
     }
 
-    public function insertMulti($table, $dataset) {
-        $builder = new QueryBuilder;
+    public function insertMulti($table, $dataset)
+    {
+        $builder = new QueryBuilder();
         $result = $builder->insert($table, $dataset);
         extract($result);
         $this->executeSQL($query, $param);
     }
 
-    public function executeSQL($sql, $param = array()) {
+    public function executeSQL($sql, $param = [])
+    {
         $stmt = $this->prepare($sql);
         $param = $this->sanitizeParam($param);
 
@@ -256,7 +303,8 @@ class Conn extends PDO {
         return true;
     }
 
-    public function runInsert($sql, $param = array()) {
+    public function runInsert($sql, $param = [])
+    {
         $result = false;
 
         $this->beginTransaction();
@@ -275,8 +323,9 @@ class Conn extends PDO {
         return $result;
     }
 
-    protected function sanitizeParam($param) {
-        return array_map(function($a) {
+    protected function sanitizeParam($param)
+    {
+        return array_map(function ($a) {
             if (is_bool($a)) {
                 return $a ? 1 : 0;
             }
